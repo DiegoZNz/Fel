@@ -27,7 +27,7 @@ function init() {
   captureContainers = [];
   captureIndex = 0;
 
-  // Crear 100 corazones
+  // Crear 100 corazones (sin cambios)
   for (var i = 0; i < 100; i++) {
     var heart = new createjs.Shape();
     heart.graphics.beginFill(
@@ -45,11 +45,17 @@ function init() {
     container.addChild(heart);
   }
 
-  // Crear texto centrado
-  text = new createjs.Text("Feliz cumpleaños amor <3\nEspero y te la pasas bonito en este día y me dejes\nestar en tu siguiente cumpleaños!!!\n¡¡¡Te amo mucho hermosa!!!", "bold 28px Arial", "#fff");
-  text.textAlign = "center";
-  text.x = w / 2;
-  text.y = h / 2 - text.getMeasuredLineHeight();
+  // Crear texto con contenido y configuración base
+  text = new createjs.Text(
+    "Feliz cumpleaños amor <3\n" +
+    "Espero y te la pasas bonito en este día y me dejes\n" +
+    "estar en tu siguiente cumpleaños!!!\n" +
+    "¡¡¡Te amo mucho hermosa!!!",
+    "bold 28px Arial",
+    "#fff"
+  );
+  // Hacemos que el texto se ajuste y se posicione dinámicamente
+  updateText();
   stage.addChild(text);
 
   // Crear contenedores de caché
@@ -66,12 +72,38 @@ function init() {
   window.addEventListener("resize", handleResize);
 }
 
-function repositionElements() {
-  // Reposicionar elementos dependientes del tamaño (como el texto centrado)
+/**
+ * Actualiza la configuración del texto para que se ajuste dinámicamente.
+ */
+function updateText() {
   var w = window.innerWidth;
   var h = window.innerHeight;
+
+  // Calcular un tamaño de fuente dinámico basado en el ancho de la ventana (entre 16px y 40px)
+  var fontSize = Math.max(16, Math.min(40, w * 0.05));
+  text.font = "bold " + fontSize + "px Arial";
+
+  // Establecer un ancho máximo para el texto (para que se haga wrap)
+  text.lineWidth = w * 0.8; // 80% del ancho de la ventana
+
+  // Centrar horizontalmente
+  text.textAlign = "center";
   text.x = w / 2;
-  text.y = h / 2 - text.getMeasuredLineHeight();
+
+  // Calcular la altura total del texto:
+  // Para líneas definidas explícitamente con "\n", usamos el número de líneas.
+  // Si el texto se ajusta automáticamente por el lineWidth, la estimación puede variar,
+  // pero este método proporciona una aproximación razonable.
+  var lines = text.text.split("\n");
+  var totalTextHeight = lines.length * text.getMeasuredLineHeight();
+
+  // Centrar verticalmente (aproximadamente)
+  text.y = (h - totalTextHeight) / 2;
+}
+
+function repositionElements() {
+  // Reposicionar elementos dependientes del tamaño (como el texto centrado)
+  updateText();
 }
 
 function handleResize() {
